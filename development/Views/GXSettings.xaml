@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Gurux.Serial.Views.GXSettings"
+             Title="Serial port settings">
+    <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <StackLayout Orientation="Horizontal" VerticalOptions="Start">
+            <!-- top controls -->
+            <Grid Margin="20,35,20,20" 
+                  VerticalOptions="FillAndExpand"
+                  HorizontalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition Height="4*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="4*" />
+                </Grid.ColumnDefinitions>
+                <Label 
+                 Text="Port" Grid.Column="0" 
+                 SemanticProperties.Description="Selected serial port" />
+                <Picker x:Name="SerialPorts" Grid.Column="1">
+                </Picker>
+                <Label
+                 Text="Baud rate" Grid.Column="0" Grid.Row="1" 
+                 SemanticProperties.Description="Used baud rate" />
+                <Picker x:Name="BaudRates" Grid.Column="1" Grid.Row="1">
+                </Picker>
+                <Label
+                 Text="Data bits" Grid.Column="0" Grid.Row="2" 
+                 SemanticProperties.Description="Used data bits" />
+                <Picker x:Name="DataBitList" Grid.Column="2" Grid.Row="2">
+                </Picker>
+                <Label
+                 Text="Parity" Grid.Column="0" Grid.Row="3" 
+                 SemanticProperties.Description="Parity" />
+                <Picker x:Name="ParityList" Grid.Column="3" Grid.Row="3">
+                </Picker>
+                <Label
+                 Text="Stop bits" Grid.Column="0" Grid.Row="4" 
+                 SemanticProperties.Description="Stop bits" />
+                <Picker x:Name="StopBitList" Grid.Column="4" Grid.Row="4">
+                </Picker>
+            </Grid>
+        </StackLayout>
+        <StackLayout VerticalOptions="CenterAndExpand">
+            <!-- middle controls -->
+        </StackLayout>
+        <StackLayout Orientation="Horizontal" VerticalOptions="End">
+            <!-- bottom controls -->
+            <HorizontalStackLayout Padding="30,10" Spacing="5"  HorizontalOptions="CenterAndExpand">
+                <Button x:Name="OkBtn" Text="OK" Clicked="OnOk" />
+                <Button x:Name="CancenBtn" Text="Cancel" Clicked="OnCancel"/>
+            </HorizontalStackLayout>
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

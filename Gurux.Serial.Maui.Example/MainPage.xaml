@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Gurux.Serial.Example.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+            <HorizontalStackLayout
+            Padding="30,0"
+            Spacing="25">
+                <Label
+                Text="Port"
+                SemanticProperties.Description="Selected serial port" />
+                <Picker x:Name="SerialPorts">
+                </Picker>
+
+                <Button
+                x:Name="OpenBtn"
+                Text="Open" 
+                SemanticProperties.Hint="Open selected serial port."
+                Clicked="OnOpen"/>
+                <Button
+                x:Name="CloseBtn"
+                    IsVisible="False"
+                Text="Close" 
+                SemanticProperties.Hint="Close selected serial port."
+                Clicked="OnClose"/>
+                <Button
+                x:Name="Properties"
+                Text="Properties" 
+                SemanticProperties.Hint="Serial port properties."
+                Clicked="OnPropertiesAsync"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HorizontalOptions="FillAndExpand">
+                    <CheckBox x:Name="IsHex" IsChecked="true" />
+                <Label Text="Hex" SemanticProperties.Description="Data is in hex format" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HorizontalOptions="FillAndExpand">
+                <Entry x:Name="SendData"
+                        Placeholder="Text to send." />
+
+                <Button
+                x:Name="SendBtn"
+                Text="Send" 
+                SemanticProperties.Hint="Send data."
+                Clicked="OnSend"/>
+
+            </HorizontalStackLayout>
+
+            <Entry x:Name="ReceivedData"
+                        Placeholder="Received data" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
