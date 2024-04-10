@@ -43,7 +43,7 @@ namespace Gurux.Serial.Example
         private List<GXPort> _ports = new List<GXPort>();
 #endif //ANDROID
 #if WINDOWS
-    private List<string> _ports = new List<string>();
+        private List<string> _ports = new List<string>();
 #endif //WINDOWS
 
         public MainPage()
@@ -55,7 +55,7 @@ namespace Gurux.Serial.Example
 #endif //ANDROID
 #if WINDOWS
             _serial = new GXSerial();
-            _ports.AddRange(GXSerial.GetPortNames());            
+            _ports.AddRange(GXSerial.GetPortNames());
 #endif //WINDOWS
 #if __IOS__
             throw new Exception("IOS is not supported at the moment.");
@@ -87,14 +87,17 @@ namespace Gurux.Serial.Example
 
         private void OnSerialPortReceived(object sender, ReceiveEventArgs e)
         {
-            if (IsHex.IsChecked)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                ReceivedData.Text += GXCommon.ToHex((byte[])e.Data);
-            }
-            else
-            {
-                ReceivedData.Text += Encoding.ASCII.GetString((byte[])e.Data);
-            }
+                if (IsHex.IsChecked)
+                {
+                    ReceivedData.Text += GXCommon.ToHex((byte[])e.Data);
+                }
+                else
+                {
+                    ReceivedData.Text += Encoding.ASCII.GetString((byte[])e.Data);
+                }
+            });
         }
 
         /// <summary>
@@ -160,7 +163,15 @@ namespace Gurux.Serial.Example
         {
             try
             {
-                byte[] data = ASCIIEncoding.ASCII.GetBytes(SendData.Text);
+                byte[] data;
+                if (IsHex.IsChecked)
+                {
+                    data = GXCommon.HexToBytes(SendData.Text);
+                }
+                else
+                {
+                    data = ASCIIEncoding.ASCII.GetBytes(SendData.Text);
+                }
                 _serial.Send(data);
             }
             catch (Exception Ex)

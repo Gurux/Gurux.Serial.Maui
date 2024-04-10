@@ -32,8 +32,6 @@
 
 using Android.Hardware.Usb;
 using Gurux.Serial.Enums;
-using Java.Lang;
-using System;
 
 namespace Gurux.Serial.Chipsets
 {
@@ -103,7 +101,7 @@ namespace Gurux.Serial.Chipsets
         /// <returns>Data size.</returns>
         public virtual int RemoveStatus(byte[] data, int size, int maxSize)
         {
-            throw new System.Exception("removeStatus is not implemented.");
+            return size;
         }
     }
 }

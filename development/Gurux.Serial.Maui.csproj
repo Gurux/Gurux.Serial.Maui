@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net8.0-android</TargetFrameworks>
@@ -16,6 +16,11 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<RootNamespace>Gurux.Serial</RootNamespace>
 	</PropertyGroup>
+	<ItemGroup>
+	  <MauiAsset Include="Assets\usbs.txt">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </MauiAsset>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Gurux.Common.Maui" Version="8.4.2404.902" />

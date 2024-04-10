@@ -44,6 +44,8 @@ using Gurux.Common.Enums;
 using Gurux.Serial.Chipsets;
 using System.Diagnostics;
 using Gurux.Serial.Views;
+using Android.Content.Res;
+using Java.IO;
 
 #if WINDOWS
 using System.IO.Ports;
@@ -112,13 +114,13 @@ namespace Gurux.Serial
         /// <summary>
         /// Serial port connection.
         /// </summary>
-        UsbDeviceConnection _Connection;
+        UsbDeviceConnection? _Connection;
         /// <summary>
         /// connection interface.
         /// </summary>
-        UsbInterface _UsbIf;
+        UsbInterface? _UsbIf;
 
-        UsbEndpoint _Out;
+        UsbEndpoint? _Out;
 
         private object m_sync = new object();
         int LastEopPos = 0;
@@ -549,9 +551,9 @@ namespace Gurux.Serial
             int vendor,
             int product)
         {
-            string vendorName = null, productName = null;
-            string line;
-            using (StreamReader r = new StreamReader(context.Assets.Open("usbs.txt")))
+            string? vendorName = null, productName = null;
+            string? line;
+            using (StreamReader r = new StreamReader(FileSystem.OpenAppPackageFileAsync("Assets/usbs.txt").Result))
             {
                 while ((line = r.ReadLine()) != null)
                 {
@@ -776,7 +778,7 @@ namespace Gurux.Serial
         {
             get
             {
-                if (IsOpen)
+                if (IsOpen && _Connection != null)
                 {
                     return _Chipset.GetDtrEnable(_Connection);
                 }
@@ -784,7 +786,7 @@ namespace Gurux.Serial
             }
             set
             {
-                if (IsOpen)
+                if (IsOpen && _Connection != null)
                 {
                     bool change = DtrEnable != value;
                     _Chipset.SetDtrEnable(_Connection, value);
@@ -889,7 +891,7 @@ namespace Gurux.Serial
         {
             get
             {
-                if (IsOpen)
+                if (IsOpen && _Connection != null)
                 {
                     return _Chipset.GetRtsEnable(_Connection);
                 }
@@ -898,7 +900,7 @@ namespace Gurux.Serial
             set
             {
                 bool change = RtsEnable != value;
-                if (IsOpen)
+                if (IsOpen && _Connection != null)
                 {
                     _Chipset.SetRtsEnable(_Connection, value);
                 }
@@ -968,7 +970,7 @@ namespace Gurux.Serial
                 _receiver = null;
             }
 
-            if (_UsbIf != null)
+            if (_UsbIf != null && _Connection != null)
             {
                 _Connection.ReleaseInterface(_UsbIf);
                 _UsbIf = null;
@@ -983,7 +985,7 @@ namespace Gurux.Serial
                 catch (System.Exception ex)
                 {
                     NotifyError(ex);
-                    throw ex;
+                    throw;
                 }
                 finally
                 {
@@ -1002,13 +1004,20 @@ namespace Gurux.Serial
         /// <returns></returns>
         public GXPort[] GetPorts()
         {
-            UsbManager? manager = (UsbManager)_contect.GetSystemService(Context.UsbService);
+            UsbManager? manager = (UsbManager?)_contect.GetSystemService(Context.UsbService);
             var list = manager?.DeviceList;
             if (manager != null && list != null && list.Any())
             {
                 foreach (var it in list)
                 {
-                    AddPort(manager, it.Value, false);
+                    if (Port?.Port == it.Key)
+                    {
+                        AddPort(manager, it.Value, false);
+                    }
+                    else
+                    {
+                        AddPort(manager, it.Value, false);
+                    }
                 }
             }
             return _ports.ToArray();
@@ -1025,16 +1034,17 @@ namespace Gurux.Serial
                 _closing.Reset();
                 if (_Port == null)
                 {
-                    throw new System.Exception("Serial port is not selected.");
+                    throw new Exception("Serial port is not selected.");
                 }
-                if (!_contect.PackageManager.HasSystemFeature("android.hardware.usb.host"))
+                if (_contect.PackageManager == null ||
+                    !_contect.PackageManager.HasSystemFeature("android.hardware.usb.host"))
                 {
-                    throw new System.Exception("Usb feature is not supported.");
+                    throw new Exception("Usb feature is not supported.");
                 }
                 NotifyMediaStateChange(MediaState.Opening);
-                if (Trace >= TraceLevel.Info)
+                if (Trace >= TraceLevel.Info && m_OnTrace != null)
                 {
-                    string eopString = "None";
+                    string? eopString = "None";
                     if (m_Eop is byte[] b)
                     {
                         eopString = Common.GXCommon.ToHex(b);
@@ -1051,9 +1061,9 @@ namespace Gurux.Serial
                                     " Stop Bits: " + StopBits +
                                     " Eop:" + eopString, null));
                 }
-                UsbEndpoint inUsbEndpoint = null;
-                UsbManager manager = (UsbManager)_contect.GetSystemService(Context.UsbService);
-                var devices = manager.DeviceList;
+                UsbEndpoint? inUsbEndpoint = null;
+                UsbManager? manager = (UsbManager?)_contect.GetSystemService(Context.UsbService);
+                var devices = manager?.DeviceList;
                 int vendor = 0, productId = 0;
                 foreach (var it in devices)
                 {
@@ -1063,8 +1073,8 @@ namespace Gurux.Serial
                         UsbInterface usbIf = it.Value.GetInterface(0);
                         for (int pos = 0; pos != usbIf.EndpointCount; ++pos)
                         {
-                            UsbAddressing direction = usbIf.GetEndpoint(pos).Direction;
-                            if (usbIf.GetEndpoint(pos).Type == UsbAddressing.XferBulk)
+                            UsbAddressing? direction = usbIf.GetEndpoint(pos)?.Direction;
+                            if (usbIf.GetEndpoint(pos)?.Type == UsbAddressing.XferBulk)
                             {
                                 if (direction == UsbAddressing.In)
                                 {
@@ -1080,7 +1090,7 @@ namespace Gurux.Serial
                                     productId = it.Value.ProductId;
                                     //Claims exclusive access to a Usb interface.
                                     //This must done to send or receive data.
-                                    _Connection.ClaimInterface(usbIf, true);
+                                    _Connection?.ClaimInterface(usbIf, true);
                                     break;
                                 }
                             }
@@ -1096,8 +1106,8 @@ namespace Gurux.Serial
                 {
                     throw new System.Exception("Invalid vendor id: " + vendor + " product Id: " + productId);
                 }
-                byte[] rawDescriptors = _Connection.GetRawDescriptors();
-                if (!_Chipset.Open(this, _Connection, rawDescriptors))
+                byte[]? rawDescriptors = _Connection?.GetRawDescriptors();
+                if (rawDescriptors == null || !_Chipset.Open(this, _Connection, rawDescriptors))
                 {
                     throw new System.Exception("Failed to open serial port.");
                 }

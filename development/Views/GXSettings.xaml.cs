@@ -107,7 +107,8 @@ public partial class GXSettings : ContentPage
 #endif //WINDOWS
         //Select the serial port.
 #if ANDROID
-        SerialPorts.SelectedItem = serial.Port;
+        //Select default port.
+        SerialPorts.SelectedItem = serial.Port?.Port;
 #endif //ANDROID
 #if WINDOWS
         SerialPorts.SelectedItem = serial.PortName;

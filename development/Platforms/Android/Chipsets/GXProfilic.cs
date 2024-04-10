@@ -51,8 +51,7 @@ namespace Gurux.Serial.Chipsets
             }
         }
 
-        private static int USB_RECIP_INTERFACE = 0x01;
-        private static int PROLIFIC_CTRL_OUT_REQTYPE = UsbConstants.UsbTypeVendor | USB_RECIP_INTERFACE;
+        private static int PROLIFIC_CTRL_OUT_REQTYPE = UsbConstants.UsbTypeClass | UsbConstants.UsbInterfaceSubclassBoot;
         private static int SET_LINE_CODING = 0x20;
         private static int CONTROL_DTR = 0x01;
         private static int CONTROL_RTS = 0x02;

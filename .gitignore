@@ -169,4 +169,5 @@ pip-log.txt
 *.ide
 *.ide-wal
 *.ide-shm
-Development/.vs/Gurux.Common/DesignTimeBuild/.dtbcache
+Development/.vs/
+Gurux.Serial.Maui.Example/.vs/
