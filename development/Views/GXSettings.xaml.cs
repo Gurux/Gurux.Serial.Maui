@@ -32,8 +32,7 @@
 
 #if WINDOWS
 using System.IO.Ports;
-#endif //WINDOWS
-#if ANDROID
+#else
 using Gurux.Serial.Enums;
 #endif //ANDROID
 namespace Gurux.Serial.Views;
@@ -70,7 +69,7 @@ public partial class GXSettings : ContentPage
     /// <summary>
     /// User has close the dialog.
     /// </summary>
-    public readonly EventWaitHandle Closing = new EventWaitHandle(false, EventResetMode.AutoReset);
+    public readonly TaskCompletionSource<bool> Closing = new TaskCompletionSource<bool>();
 
     /// <summary>
     /// Constructor.
@@ -215,33 +214,39 @@ public partial class GXSettings : ContentPage
     /// <summary>
     /// Close settings dialog.
     /// </summary>
-    private void OnOk(object sender, EventArgs e)
+    async void OnOk(object sender, EventArgs e)
     {
         try
         {
             Accept = true;
-            Closing.Set();
+            Closing.SetResult(true);
+            if (_modal)
+            {
+                await Navigation.PopModalAsync();
+            }
         }
         catch (Exception ex)
         {
-            DisplayAlert("Alert", ex.Message, "Close");
+            await DisplayAlertAsync("Alert", ex.Message, "Close");
         }
     }
     /// <summary>
     /// Close settings dialog.
     /// </summary>
-    private void OnCancel(object sender, EventArgs e)
+    async void OnCancel(object sender, EventArgs e)
     {
         try
         {
             _serial.Settings = _settings;
-
-            Closing.Set();
+            Closing.SetResult(false);
+            if (_modal)
+            {
+                await Navigation.PopModalAsync();
+            }
         }
         catch (Exception ex)
         {
-            DisplayAlert("Alert", ex.Message, "Close");
+            await DisplayAlertAsync("Alert", ex.Message, "Close");
         }
     }
-
 }

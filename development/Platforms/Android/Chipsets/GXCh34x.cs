@@ -52,7 +52,7 @@ namespace Gurux.Serial.Chipsets
         }
 
         /// <inheritdoc />
-        public new static bool IsUsing(string manufacturer, int vendor, int product)
+        public new static bool IsUsing(string? manufacturer, int vendor, int product)
         {
             //QinHeng Electronics.
             if ((vendor == 0x1a86))

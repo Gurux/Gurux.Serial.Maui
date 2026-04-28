@@ -60,7 +60,7 @@ namespace Gurux.Serial.Chipsets
         private static int PROLIFIC_VENDOR_WRITE_REQUEST = 0x01;
         private static int PROLIFIC_VENDOR_OUT_REQTYPE = UsbConstants.UsbTypeVendor;
 
-        public new static bool IsUsing(string manufacturer, int vendor, int product)
+        public new static bool IsUsing(string? manufacturer, int vendor, int product)
         {
             /*Aten UC-232*/
             if ((vendor == 0x557 && product == 0x2008) ||

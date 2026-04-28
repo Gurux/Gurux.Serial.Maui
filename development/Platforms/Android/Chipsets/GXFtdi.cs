@@ -75,7 +75,7 @@ namespace Gurux.Serial.Chipsets
         private bool _DtrEnable = false;
         private bool _RtsEnable = false;
 
-        public new static bool IsUsing(string manufacturer, int vendor, int product)
+        public new static bool IsUsing(string? manufacturer, int vendor, int product)
         {
             if ((vendor == 1027 && product == 24557) ||
                 (vendor == 1027 && product == 24577) ||

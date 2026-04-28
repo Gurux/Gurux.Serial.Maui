@@ -52,7 +52,7 @@ namespace Gurux.Serial.Chipsets
             }
         }
 
-        public new static bool IsUsing(string manufacturer, int vendor, int product)
+        public new static bool IsUsing(string? manufacturer, int vendor, int product)
         {
             /* Renesas RX610 RX-Stick */
             if ((vendor == 0x045B && product == 0x0053)

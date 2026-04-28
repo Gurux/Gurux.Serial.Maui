@@ -136,7 +136,7 @@ namespace Gurux.Serial.Example
             }
             catch (Exception ex)
             {
-                DisplayAlert("Alert", ex.Message, "Close");
+                DisplayAlertAsync("Alert", ex.Message, "Close");
             }
         }
 
@@ -148,11 +148,11 @@ namespace Gurux.Serial.Example
             try
             {
                 _serial.Close();
-                DisplayAlert("Alert", ex.Message, "Close");
+                DisplayAlertAsync("Alert", ex.Message, "Close");
             }
             catch (Exception Ex)
             {
-                DisplayAlert("Alert", Ex.Message, "Close");
+                DisplayAlertAsync("Alert", Ex.Message, "Close");
             }
         }
 
@@ -176,7 +176,7 @@ namespace Gurux.Serial.Example
             }
             catch (Exception Ex)
             {
-                DisplayAlert("Send failed", Ex.Message, "Close");
+                DisplayAlertAsync("Send failed", Ex.Message, "Close");
             }
         }
 
@@ -191,7 +191,7 @@ namespace Gurux.Serial.Example
             }
             catch (Exception ex)
             {
-                DisplayAlert("Alert", ex.Message, "Close");
+                DisplayAlertAsync("Alert", ex.Message, "Close");
             }
         }
 
@@ -206,7 +206,7 @@ namespace Gurux.Serial.Example
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Alert", ex.Message, "Close");
+                await DisplayAlertAsync("Alert", ex.Message, "Close");
             }
         }
 
@@ -221,7 +221,7 @@ namespace Gurux.Serial.Example
             }
             catch (Exception ex)
             {
-                DisplayAlert("Alert", ex.Message, "Close");
+                DisplayAlertAsync("Alert", ex.Message, "Close");
             }
         }
     }

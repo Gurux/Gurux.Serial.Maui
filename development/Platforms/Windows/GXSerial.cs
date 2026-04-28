@@ -1838,8 +1838,7 @@ namespace Gurux.Serial
         {
             GXSettings settings = new GXSettings(this, true);
             await navigation.PushModalAsync(settings);
-            await Task.Run(() => settings.Closing.WaitOne());
-            await navigation.PopModalAsync();
+            await settings.Closing.Task;
             return settings.Accept;
         }
 

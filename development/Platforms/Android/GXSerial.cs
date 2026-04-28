@@ -44,12 +44,6 @@ using Gurux.Common.Enums;
 using Gurux.Serial.Chipsets;
 using System.Diagnostics;
 using Gurux.Serial.Views;
-using Android.Content.Res;
-using Java.IO;
-
-#if WINDOWS
-using System.IO.Ports;
-#endif //WINDOWS
 
 [assembly: UsesFeature("android.hardware.usb.host")]
 
@@ -83,7 +77,7 @@ namespace Gurux.Serial
         /// <summary>
         /// Used chipset.
         /// </summary>
-        internal GXChipset _Chipset;
+        internal GXChipset? _Chipset;
         private PortAddEventHandler? _OnPortAdd;
         private PortRemoveEventHandler? _OnPortRemove;
 
@@ -203,7 +197,6 @@ namespace Gurux.Serial
             StopBits = stopBits;
         }
 
-#if ANDROID
         /**
          * Constructor.
          *
@@ -230,7 +223,6 @@ namespace Gurux.Serial
             Parity = parity;
             StopBits = stopBits;
         }
-#endif //ANDROID
 
         /// <summary>
         /// New serial port has added for the device.
@@ -269,7 +261,7 @@ namespace Gurux.Serial
         /// <param name="vendor">Vendor ID.</param>
         /// <param name="productId">Product ID.</param>
         /// <returns>Chipset settings.</returns>
-        private static GXChipset? GetChipSet(string manufacturer, int vendor, int productId)
+        private static GXChipset? GetChipSet(string? manufacturer, int vendor, int productId)
         {
             if (GXCP21xx.IsUsing(manufacturer, vendor, productId))
             {
@@ -395,8 +387,8 @@ namespace Gurux.Serial
                 UsbInterface usbIf = device.GetInterface(i);
                 for (int pos = 0; pos != usbIf.EndpointCount; ++pos)
                 {
-                    UsbAddressing? direction = usbIf.GetEndpoint(pos).Direction;
-                    if (usbIf.GetEndpoint(pos).Type == UsbAddressing.XferBulk)
+                    UsbAddressing? direction = usbIf.GetEndpoint(pos)?.Direction;
+                    if (usbIf.GetEndpoint(pos)?.Type == UsbAddressing.XferBulk)
                     {
                         if (direction == UsbAddressing.In)
                         {
@@ -424,7 +416,7 @@ namespace Gurux.Serial
                         port.Vendor = info.Value.Key;
                         port.Product = info.Value.Value;
                     }
-                    UsbDeviceConnection connection = manager.OpenDevice(device);
+                    UsbDeviceConnection? connection = manager.OpenDevice(device);
                     if (connection == null)
                     {
                         //If failed to open the device.
@@ -433,12 +425,12 @@ namespace Gurux.Serial
                     try
                     {
                         port.Serial = connection.Serial;
-                        byte[] rawDescriptors = connection.GetRawDescriptors();
+                        byte[]? rawDescriptors = connection.GetRawDescriptors();
                         port.RawDescriptors = rawDescriptors;
-                        string man = GetManufacturer(connection, rawDescriptors, buffer);
-                        string prod = GetProduct(connection, rawDescriptors, buffer);
+                        string? man = GetManufacturer(connection, rawDescriptors, buffer);
+                        string? prod = GetProduct(connection, rawDescriptors, buffer);
                         port.Manufacturer = (man + ": " + prod);
-                        GXChipset chipset = GetChipSet(man, device.VendorId, device.ProductId);
+                        GXChipset? chipset = GetChipSet(man, device.VendorId, device.ProductId);
                         if (chipset != null)
                         {
                             port.Chipset = chipset.Chipset;
@@ -489,10 +481,10 @@ namespace Gurux.Serial
         private static int STD_USB_REQUEST_GET_DESCRIPTOR = 0x06;
         private static int LIBUSB_DT_STRING = 0x03;
 
-        private static string GetManufacturer(
+        private static string? GetManufacturer(
             UsbDeviceConnection connection,
-            byte[] rawDescriptors,
-            byte[] buff)
+            byte[]? rawDescriptors,
+            byte[]? buff)
         {
             if (rawDescriptors == null || rawDescriptors.Length <= MANUFACTURER_INDEX)
             {
@@ -506,17 +498,17 @@ namespace Gurux.Serial
                     buff,
                     0xFF,
                     0);
-            if (lengthManufacturer > 2)
+            if (lengthManufacturer > 2 && buff != null)
             {
                 return Encoding.Unicode.GetString(buff, 2, lengthManufacturer - 2);
             }
             return null;
         }
 
-        private static string GetProduct(
+        private static string? GetProduct(
             UsbDeviceConnection connection,
-            byte[] rawDescriptors,
-            byte[] buff)
+            byte[]? rawDescriptors,
+            byte[]? buff)
         {
             if (rawDescriptors == null || rawDescriptors.Length <= PRODUCT_INDEX)
             {
@@ -530,7 +522,7 @@ namespace Gurux.Serial
                     buff,
                     0xFF,
                     0);
-            if (lengthProduct > 2)
+            if (lengthProduct > 2 && buff != null)
             {
                 return Encoding.Unicode.GetString(buff, 2, lengthProduct - 2);
             }
@@ -597,7 +589,7 @@ namespace Gurux.Serial
             {
                 return null;
             }
-            return new KeyValuePair<string, string>(vendorName, productName);
+            return new KeyValuePair<string, string>(vendorName, productName ?? string.Empty);
         }
 
         /// <summary>
@@ -621,7 +613,7 @@ namespace Gurux.Serial
             {
                 if (totalCount != 0 && Eop != null) //Search Eop if given.
                 {
-                    byte[] eop = null;
+                    byte[]? eop = null;
                     if (Eop is Array)
                     {
                         foreach (object it in (Array)Eop)
@@ -641,7 +633,7 @@ namespace Gurux.Serial
                     }
                     if (totalCount != -1)
                     {
-                        totalCount += eop.Length;
+                        totalCount += eop?.Length ?? 0;
                     }
                 }
             }
@@ -689,7 +681,7 @@ namespace Gurux.Serial
                 {
                     byte[] buff = new byte[totalCount];
                     Array.Copy(buffer, buff, totalCount);
-                    m_OnReceived(this, new ReceiveEventArgs(buff, Port.Port));
+                    m_OnReceived(this, new ReceiveEventArgs(buff, Port?.Port!));
                 }
             }
         }
@@ -780,7 +772,7 @@ namespace Gurux.Serial
             {
                 if (IsOpen && _Connection != null)
                 {
-                    return _Chipset.GetDtrEnable(_Connection);
+                    return _Chipset?.GetDtrEnable(_Connection) ?? false;
                 }
                 return false;
             }
@@ -789,7 +781,7 @@ namespace Gurux.Serial
                 if (IsOpen && _Connection != null)
                 {
                     bool change = DtrEnable != value;
-                    _Chipset.SetDtrEnable(_Connection, value);
+                    _Chipset?.SetDtrEnable(_Connection, value);
                     if (change)
                     {
                         NotifyPropertyChanged("DtrEnable");
@@ -893,7 +885,7 @@ namespace Gurux.Serial
             {
                 if (IsOpen && _Connection != null)
                 {
-                    return _Chipset.GetRtsEnable(_Connection);
+                    return _Chipset?.GetRtsEnable(_Connection) ?? false;
                 }
                 return false;
             }
@@ -902,7 +894,7 @@ namespace Gurux.Serial
                 bool change = RtsEnable != value;
                 if (IsOpen && _Connection != null)
                 {
-                    _Chipset.SetRtsEnable(_Connection, value);
+                    _Chipset?.SetRtsEnable(_Connection, value);
                 }
                 if (change)
                 {
@@ -1063,11 +1055,15 @@ namespace Gurux.Serial
                 }
                 UsbEndpoint? inUsbEndpoint = null;
                 UsbManager? manager = (UsbManager?)_contect.GetSystemService(Context.UsbService);
-                var devices = manager?.DeviceList;
-                int vendor = 0, productId = 0;
-                foreach (var it in devices)
+                if (manager == null)
                 {
-                    if (it.Key == _Port.Port)
+                    throw new Exception("Failed to get UsbManager.");
+                }
+                var devices = manager.DeviceList;
+                int vendor = 0, productId = 0;
+                foreach (var it in devices ?? Enumerable.Empty<KeyValuePair<string, UsbDevice>>())
+                {
+                    if (it.Key == _Port?.Port)
                     {
                         _Connection = manager.OpenDevice(it.Value);
                         UsbInterface usbIf = it.Value.GetInterface(0);
@@ -1106,7 +1102,11 @@ namespace Gurux.Serial
                 {
                     throw new System.Exception("Invalid vendor id: " + vendor + " product Id: " + productId);
                 }
-                byte[]? rawDescriptors = _Connection?.GetRawDescriptors();
+                if (_Connection == null)
+                {
+                    throw new System.Exception("Failed to open USB connection.");
+                }
+                byte[]? rawDescriptors = _Connection.GetRawDescriptors();
                 if (rawDescriptors == null || !_Chipset.Open(this, _Connection, rawDescriptors))
                 {
                     throw new System.Exception("Failed to open serial port.");
@@ -1187,7 +1187,7 @@ namespace Gurux.Serial
         /// GXNet component sends received data through this method.
         /// </summary>
         [Description("GXNet component sends received data through this method.")]
-        public event ReceivedEventHandler OnReceived
+        public event ReceivedEventHandler? OnReceived
         {
             add
             {
@@ -1203,7 +1203,7 @@ namespace Gurux.Serial
         /// Errors that occur after the connection is established, are sent through this method.
         /// </summary>
         [Description("Errors that occur after the connection is established, are sent through this method.")]
-        public event Gurux.Common.ErrorEventHandler OnError
+        public event Gurux.Common.ErrorEventHandler? OnError
         {
             add
             {
@@ -1220,7 +1220,7 @@ namespace Gurux.Serial
         /// Media component sends notification, when its state changes.
         /// </summary>
         [Description("Media component sends notification, when its state changes.")]
-        public event MediaStateChangeEventHandler OnMediaStateChange
+        public event MediaStateChangeEventHandler? OnMediaStateChange
         {
             add
             {
@@ -1235,7 +1235,7 @@ namespace Gurux.Serial
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
             add
             {
@@ -1249,7 +1249,7 @@ namespace Gurux.Serial
 
         /// <inheritdoc cref="TraceEventHandler"/>
         [Description("Called when the Media is sending or receiving data.")]
-        public event TraceEventHandler OnTrace
+        public event TraceEventHandler? OnTrace
         {
             add
             {
@@ -1589,8 +1589,7 @@ namespace Gurux.Serial
         {
             GXSettings settings = new GXSettings(this, true);
             await navigation.PushModalAsync(settings);
-            await Task.Run(() => settings.Closing.WaitOne());
-            await navigation.PopModalAsync();
+            await settings.Closing.Task;
             return settings.Accept;
         }
 
@@ -1638,10 +1637,10 @@ namespace Gurux.Serial
             }
             if (Trace == TraceLevel.Verbose)
             {
-                m_OnTrace(this, new TraceEventArgs(TraceTypes.Sent, data, null));
+                m_OnTrace?.Invoke(this, new TraceEventArgs(TraceTypes.Sent, data, null));
             }
             int ret, pos = 0, dataSize = _Out.MaxPacketSize;
-            while (pos != buff.Length)
+            while (pos != buff.Length && _Connection != null)
             {
                 if (buff.Length - pos < dataSize)
                 {

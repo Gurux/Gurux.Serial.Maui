@@ -97,7 +97,11 @@ namespace Gurux.Serial
             {
                 return Vendor;
             }
-            return Port;
+            if (!string.IsNullOrEmpty(Port))
+            {
+                return Port;
+            }
+            return nameof(GXPort);
         }
 
         /// <summary>

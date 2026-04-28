@@ -41,7 +41,7 @@ namespace Gurux.Serial
     /// </summary>
     static class GXHelpers
     {
-        public static int ControlTransfer(this UsbDeviceConnection connection, int requestType, int request, int value, int index, byte[] buffer, int length, int timeout)
+        public static int ControlTransfer(this UsbDeviceConnection connection, int requestType, int request, int value, int index, byte[]? buffer, int length, int timeout)
         {
             return connection.ControlTransferAsync((UsbAddressing)requestType, request, value, index, buffer, length, timeout).Result;
         }       
