@@ -157,7 +157,16 @@ namespace Gurux.Serial
             filter.AddAction(UsbManager.ActionUsbAccessoryDetached);
             filter.AddAction(UsbManager.ActionUsbDeviceAttached);
             filter.AddAction(UsbManager.ActionUsbDeviceDetached);
-            contect.RegisterReceiver(_Receiver, new IntentFilter(filter));
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
+            {
+#pragma warning disable CA1416 // Validate platform compatibility
+                contect.RegisterReceiver(_Receiver, new IntentFilter(filter), ReceiverFlags.NotExported);
+#pragma warning restore CA1416 // Validate platform compatibility
+            }
+            else
+            {
+                contect.RegisterReceiver(_Receiver, new IntentFilter(filter));
+            }
             ConfigurableSettings = AvailableMediaSettings.All;
             _syncBase = new GXSynchronousMediaBase(1024);
         }
