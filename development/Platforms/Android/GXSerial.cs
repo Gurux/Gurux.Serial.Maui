@@ -55,6 +55,7 @@ namespace Gurux.Serial
     /// </summary>
     public class GXSerial : IGXMedia2, INotifyPropertyChanged, IDisposable
     {
+        internal const string UsbPermissionAction = "Gurux.Serial";
 
         Task? _receiver;
         /// <summary>
@@ -153,7 +154,7 @@ namespace Gurux.Serial
         {
             _contect = contect;
             _Receiver = new GXUsbReciever(this);
-            IntentFilter filter = new IntentFilter("Gurux.Serial");
+            IntentFilter filter = new IntentFilter(UsbPermissionAction);
             filter.AddAction(UsbManager.ActionUsbAccessoryDetached);
             filter.AddAction(UsbManager.ActionUsbDeviceAttached);
             filter.AddAction(UsbManager.ActionUsbDeviceDetached);
@@ -356,7 +357,7 @@ namespace Gurux.Serial
             }
         }
 
-        internal void AddPort(UsbManager m, UsbDevice device, bool notify)
+        internal void AddPort(UsbManager? m, UsbDevice device, bool notify)
         {
             //Check if port is already added.
             foreach (GXPort it in _ports)
@@ -378,18 +379,14 @@ namespace Gurux.Serial
                 }
             }
             byte[] buffer = new byte[255];
-            string name = "Gurux.Serial";
-            PendingIntent? permissionIntent = PendingIntent.GetBroadcast(_contect, 0, new Intent(name), PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent);
+            PendingIntent? permissionIntent = PendingIntent.GetBroadcast(_contect, 0, new Intent(UsbPermissionAction), PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent);
             UsbEndpoint? inUsbEndpoint = null, outUsbEndpoint = null;
             if (!manager.HasPermission(device))
             {
                 //If there aren't permissions for the device.
                 manager.RequestPermission(device, permissionIntent);
-                if (!manager.HasPermission(device))
-                {
-                    //If there aren't permissions for the device.
-                    return;
-                }
+                //Permission result is delivered asynchronously via broadcast receiver.
+                return;
             }
             for (int i = 0; i != device.InterfaceCount; ++i)
             {

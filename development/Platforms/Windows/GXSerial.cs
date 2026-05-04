@@ -1406,7 +1406,7 @@ namespace Gurux.Serial
         /// GXNet component sends received data through this method.
         /// </summary>
         [Description("GXNet component sends received data through this method.")]
-        public event ReceivedEventHandler OnReceived
+        public event ReceivedEventHandler? OnReceived
         {
             add
             {
@@ -1422,7 +1422,7 @@ namespace Gurux.Serial
         /// Errors that occur after the connection is established, are sent through this method.
         /// </summary>
         [Description("Errors that occur after the connection is established, are sent through this method.")]
-        public event Gurux.Common.ErrorEventHandler OnError
+        public event Gurux.Common.ErrorEventHandler? OnError
         {
             add
             {
@@ -1439,7 +1439,7 @@ namespace Gurux.Serial
         /// Media component sends notification, when its state changes.
         /// </summary>
         [Description("Media component sends notification, when its state changes.")]
-        public event MediaStateChangeEventHandler OnMediaStateChange
+        public event MediaStateChangeEventHandler? OnMediaStateChange
         {
             add
             {
@@ -1455,7 +1455,7 @@ namespace Gurux.Serial
         /// Called when the client is establishing a connection with a Net Server.
         /// </summary>
         [Description("Called when the client is establishing a connection with a Net Server.")]
-        public event ClientConnectedEventHandler OnClientConnected
+        public event ClientConnectedEventHandler? OnClientConnected
         {
             add
             {
@@ -1471,7 +1471,7 @@ namespace Gurux.Serial
         /// Called when the client has been disconnected from the network server.
         /// </summary>
         [Description("Called when the client has been disconnected from the network server.")]
-        public event ClientDisconnectedEventHandler OnClientDisconnected
+        public event ClientDisconnectedEventHandler? OnClientDisconnected
         {
             add
             {
@@ -1500,7 +1500,7 @@ namespace Gurux.Serial
 
         /// <inheritdoc cref="TraceEventHandler"/>
         [Description("Called when the Media is sending or receiving data.")]
-        public event TraceEventHandler OnTrace
+        public event TraceEventHandler? OnTrace
         {
             add
             {
@@ -1681,7 +1681,7 @@ namespace Gurux.Serial
         }
 
         /// <inheritdoc />
-        public string Settings
+        public string? Settings
         {
             get
             {

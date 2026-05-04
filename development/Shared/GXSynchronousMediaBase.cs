@@ -36,8 +36,8 @@ namespace Gurux.Shared
 {
     class GXSynchronousMediaBase
     {
-        internal Exception Exception;
-        internal byte[] m_Received = null;
+        internal Exception? Exception;
+        internal byte[]? m_Received;
         internal AutoResetEvent receivedEvent = new AutoResetEvent(false);
         internal readonly object receivedSync = new object();
         internal int receivedSize;

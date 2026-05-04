@@ -52,24 +52,42 @@ namespace Gurux.Serial
             _serial = serial;
         }
 
-        public override void OnReceive(Context context, Intent intent)
+        public override void OnReceive(Context? context, Intent? intent)
         {
-            if (UsbManager.ActionUsbDeviceDetached == intent.Action)
+            if (intent?.Action == GXSerial.UsbPermissionAction)
             {
                 lock (this)
                 {
-                    UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice,
+                    UsbDevice? device = (UsbDevice?)intent.GetParcelableExtra(UsbManager.ExtraDevice,
                         Java.Lang.Class.FromType(typeof(UsbDevice)));
-                    _serial.RemovePort(device);
+                    if (device != null && intent.GetBooleanExtra(UsbManager.ExtraPermissionGranted, false))
+                    {
+                        _serial.AddPort(null, device, true);
+                    }
                 }
             }
-            else if (UsbManager.ActionUsbDeviceAttached == intent.Action)
+            else if (intent?.Action == UsbManager.ActionUsbDeviceDetached)
             {
                 lock (this)
                 {
-                    UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice,
+                    UsbDevice? device = (UsbDevice?)intent.GetParcelableExtra(UsbManager.ExtraDevice,
                         Java.Lang.Class.FromType(typeof(UsbDevice)));
-                    _serial.AddPort(null, device, true);
+                    if (device != null)
+                    {
+                        _serial.RemovePort(device);
+                    }
+                }
+            }
+            else if (intent?.Action == UsbManager.ActionUsbDeviceAttached)
+            {
+                lock (this)
+                {
+                    UsbDevice? device = (UsbDevice?)intent.GetParcelableExtra(UsbManager.ExtraDevice,
+                        Java.Lang.Class.FromType(typeof(UsbDevice)));
+                    if (device != null)
+                    {
+                        _serial.AddPort(null, device, true);
+                    }
                 }
             }
         }

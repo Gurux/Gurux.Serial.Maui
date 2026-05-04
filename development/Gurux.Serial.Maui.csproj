@@ -32,14 +32,14 @@
     </PropertyGroup>
     <ItemGroup>
         <MauiAsset Include="Assets\usbs.txt">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </MauiAsset>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Gurux.Common.Maui" Version="8.4.2604.2804" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.51" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.60" />
         <PackageReference Include="System.IO.Ports" Version="10.0.7" />
     </ItemGroup>
 

@@ -36,56 +36,55 @@ using System.Runtime.InteropServices;
 namespace Gurux.Shared
 {
     class GXCommon
-	{
-		/// <summary>
-		/// Convert object to byte array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public static byte[] GetAsByteArray(object value)
-		{
-			if (value == null)
-			{
-				return new byte[0];
-			}
-			if (value is string)
-			{
-				return Encoding.UTF8.GetBytes((string)value);
-			}
-			int rawsize = 0;
-			byte[] rawdata = null;
-			GCHandle handle;
-			if (value is Array)
-			{
-				Array arr = value as Array;
-				if (arr.Length != 0)
-				{
-					int valueSize = Marshal.SizeOf(arr.GetType().GetElementType());
-					rawsize = valueSize * arr.Length;
-					rawdata = new byte[rawsize];
-					handle = GCHandle.Alloc(rawdata, GCHandleType.Pinned);
-					long pos = handle.AddrOfPinnedObject().ToInt64();
-					foreach (object it in arr)
-					{
-						Marshal.StructureToPtr(it, new IntPtr(pos), false);
-						pos += valueSize;
-					}
-					handle.Free();
-					return rawdata;
-				}
-				return new byte[0];
-			}
+    {
+        /// <summary>
+        /// Convert object to byte array.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static byte[] GetAsByteArray(object value)
+        {
+            if (value == null)
+            {
+                return new byte[0];
+            }
+            if (value is string)
+            {
+                return Encoding.UTF8.GetBytes((string)value);
+            }
+            int rawsize = 0;
+            byte[]? rawdata = null;
+            GCHandle handle;
+            if (value is Array arr)
+            {
+                if (arr.Length != 0)
+                {
+                    int valueSize = Marshal.SizeOf(arr.GetType().GetElementType());
+                    rawsize = valueSize * arr.Length;
+                    rawdata = new byte[rawsize];
+                    handle = GCHandle.Alloc(rawdata, GCHandleType.Pinned);
+                    long pos = handle.AddrOfPinnedObject().ToInt64();
+                    foreach (object it in arr)
+                    {
+                        Marshal.StructureToPtr(it, new IntPtr(pos), false);
+                        pos += valueSize;
+                    }
+                    handle.Free();
+                    return rawdata;
+                }
+                return new byte[0];
+            }
 
-			rawsize = Marshal.SizeOf(value);
-			rawdata = new byte[rawsize];
-			handle = GCHandle.Alloc(rawdata, GCHandleType.Pinned);
-			Marshal.StructureToPtr(value, handle.AddrOfPinnedObject(), false);
-			handle.Free();
-			return rawdata;
-		}		
+            rawsize = Marshal.SizeOf(value);
+            rawdata = new byte[rawsize];
+            handle = GCHandle.Alloc(rawdata, GCHandleType.Pinned);
+            Marshal.StructureToPtr(value, handle.AddrOfPinnedObject(), false);
+            handle.Free();
+            return rawdata;
+        }
 
         public static object ByteArrayToObject(byte[] byteArray, Type type, int index, int count, bool reverse, out int readBytes)
-		{            
+        {
             if (byteArray == null)
             {
                 throw new ArgumentException("byteArray");
@@ -112,7 +111,7 @@ namespace Gurux.Shared
             Type valueType = null;
             int valueSize = 0;
             if (index != 0 || reverse)
-            {                
+            {
                 if (type == typeof(string))
                 {
                     readBytes = count;
@@ -134,8 +133,8 @@ namespace Gurux.Shared
                 byte[] tmp = byteArray;
                 byteArray = new byte[readBytes];
                 Array.Copy(tmp, index, byteArray, 0, readBytes);
-            }                        			
-			object value = null;
+            }
+            object value = null;
             if (type == typeof(string))
             {
                 return Encoding.UTF8.GetString(byteArray);
@@ -144,31 +143,31 @@ namespace Gurux.Shared
             {
                 byteArray = byteArray.Reverse().ToArray();
             }
-			GCHandle handle;
-			if (type.IsArray)
-			{				
+            GCHandle handle;
+            if (type.IsArray)
+            {
                 if (count == -1)
                 {
                     count = byteArray.Length / Marshal.SizeOf(valueType);
-                }                
+                }
                 Array arr = (Array)Activator.CreateInstance(type, count);
-				handle = GCHandle.Alloc(byteArray, GCHandleType.Pinned);
-				long start = handle.AddrOfPinnedObject().ToInt64();
+                handle = GCHandle.Alloc(byteArray, GCHandleType.Pinned);
+                long start = handle.AddrOfPinnedObject().ToInt64();
                 for (int pos = 0; pos != count; ++pos)
-				{
-					arr.SetValue(Marshal.PtrToStructure(new IntPtr(start), valueType), pos);
-					start += valueSize;
-					readBytes += valueSize;
-				}
-				handle.Free();
-				return arr;
-			}
-			handle = GCHandle.Alloc(byteArray, GCHandleType.Pinned);            
-			value = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), type);
-			readBytes = Marshal.SizeOf(type);
-			handle.Free();
-			return value;
-		}
+                {
+                    arr.SetValue(Marshal.PtrToStructure(new IntPtr(start), valueType), pos);
+                    start += valueSize;
+                    readBytes += valueSize;
+                }
+                handle.Free();
+                return arr;
+            }
+            handle = GCHandle.Alloc(byteArray, GCHandleType.Pinned);
+            value = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), type);
+            readBytes = Marshal.SizeOf(type);
+            handle.Free();
+            return value;
+        }
 
         /// <summary>
         /// Convert received byte stream to wanted object.
@@ -193,25 +192,25 @@ namespace Gurux.Shared
         /// <param name="count">Maximum search buffer size.</param>
         /// <returns></returns>
 		public static int IndexOf(byte[] input, byte[] pattern, int index, int count)
-		{
-			//If not enought data available.
+        {
+            //If not enought data available.
             if (count < pattern.Length)
-			{
-				return -1;
-			}
-			byte firstByte = pattern[0];
-			int pos = -1;
+            {
+                return -1;
+            }
+            byte firstByte = pattern[0];
+            int pos = -1;
             if ((pos = Array.IndexOf(input, firstByte, index, count - index)) >= 0)
-			{
-				for (int i = 0; i < pattern.Length; i++)
-				{
-					if (pos + i >= input.Length || pattern[i] != input[pos + i])
-					{
-						return -1;
-					}
-				}
-			}
-			return pos;
-		}
-	}
+            {
+                for (int i = 0; i < pattern.Length; i++)
+                {
+                    if (pos + i >= input.Length || pattern[i] != input[pos + i])
+                    {
+                        return -1;
+                    }
+                }
+            }
+            return pos;
+        }
+    }
 }

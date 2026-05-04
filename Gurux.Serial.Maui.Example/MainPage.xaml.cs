@@ -65,6 +65,16 @@ namespace Gurux.Serial.Example
             _serial.OnReceived += OnSerialPortReceived;
             SerialPorts.SelectedIndexChanged += SelectedSerialPortChanged;
 #if ANDROID
+            _serial.OnPortRemove += (GXPort port, int index) =>
+            {
+                _ports.RemoveAt(index);
+                SerialPorts.Items.RemoveAt(index);
+            };
+            _serial.OnPortAdd += (GXPort port) =>
+            {
+                _ports.Add(port);
+                SerialPorts.Items.Add(port.Port);
+            };
             foreach (var it in _ports)
             {
                 SerialPorts.Items.Add(it.Port);
