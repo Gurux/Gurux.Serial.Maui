@@ -551,7 +551,7 @@ namespace Gurux.Serial
         {
             string? vendorName = null, productName = null;
             string? line;
-            using (StreamReader r = new StreamReader(FileSystem.OpenAppPackageFileAsync("Assets/usbs.txt").Result))
+            using (StreamReader r = new StreamReader(FileSystem.OpenAppPackageFileAsync("usbs.txt").Result))
             {
                 while ((line = r.ReadLine()) != null)
                 {
