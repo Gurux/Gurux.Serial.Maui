@@ -551,7 +551,13 @@ namespace Gurux.Serial
         {
             string? vendorName = null, productName = null;
             string? line;
-            using (StreamReader r = new StreamReader(FileSystem.OpenAppPackageFileAsync("usbs.txt").Result))
+            var assembly = typeof(GXSerial).Assembly;
+            using var stream = assembly.GetManifestResourceStream("Gurux.Serial.Maui.usbs.txt");
+            if (stream == null)
+            {
+                throw new FileNotFoundException("Embedded resource not found: Gurux.Serial.Maui.usbs.txt");
+            }
+            using (StreamReader r = new StreamReader(stream))
             {
                 while ((line = r.ReadLine()) != null)
                 {
@@ -1186,6 +1192,7 @@ namespace Gurux.Serial
                 Close();
                 throw;
             }
+
         }
 
         #region Events
